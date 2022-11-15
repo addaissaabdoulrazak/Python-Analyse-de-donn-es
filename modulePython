@@ -1,0 +1,516 @@
+from cmath import sqrt
+from random import *
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+import random
+
+
+print("==========================[Principe : Diviser pour mieux regner]==========================")
+
+def WriteDataToFile():
+    new = "o"
+    fch = open("C:\\Users\\addai\python\\TP1_MPISI2.txt", "a")
+    while new == "o":
+        n1 = (input("Entrez un entier : "))
+        n2 = (input("Entrez un entier : "))
+        n3 = (input("Entrez un entier : "))
+        n4 = (input("Entrez un entier : "))
+        n5 = (input("Entrez un entier : "))
+
+        ligne = (n1 + " " + n2 + " " + n3 + " " + n4 + " " + n5 +"\n")
+        fch.write(ligne)
+        new = input("Voulez-vous continuer, (o / n) ?")
+    fch.close()
+
+
+def ReadDataFromFile():
+    fch = open("C:\\Users\\addai\python\\TP1_MPISI2.txt", "r")
+    lire = fch.read()
+    print(lire)
+    fch.close()
+
+
+
+def ShowData():
+    data = []
+    fch = open("C:\\Users\\addai\python\\TP1_MPISI2.txt", "r")
+    for i in fch:
+        data.append(i)
+    for d in data:
+        print(d)
+    fch.close()
+
+
+#========================[génération d'une serie staistique]===========================
+
+
+def GenerateData(min, max, size):
+
+    randomlist = random.sample(range(min, max), size)
+    print(randomlist)
+
+
+
+#===============================[Médiane]==============================
+
+def median(features) :
+
+    # sorted array
+    features.sort()
+
+    #length of the array
+    length = len(features)
+
+    n=length//2
+
+    mediane=0
+
+    if(length % 2 == 0) :                            
+        rang = (n)+1
+        rangPython= rang-1
+        mediane=math.ceil(features[int(rangPython)])
+
+
+    else:
+        rang = (length+1)/2    
+
+        rangPython=rang-1
+
+        mediane= features[int(rangPython)]
+ 
+
+    return mediane
+
+
+
+
+#===============================[Moyenne]==============================
+
+def calculMoyenne(features) :
+    
+
+    features_size=len(features)
+
+    sum_xi=0
+
+    if features_size > 0 :
+
+        for valeurObservaion in features :
+
+            sum_xi=sum_xi + valeurObservaion
+
+        moyenne=sum_xi/features_size
+
+        return moyenne
+
+       
+
+#===============================[Calculating Mode]==============================
+
+def calculMode(features):
+    
+    #dictionary
+    y={}
+    for valeurObservation in features :
+
+        if not valeurObservation in y :
+            y[valeurObservation]=1
+        else:
+            y[valeurObservation]+=1
+            return[g for g, l in y.items() if l==max(y.values())]
+
+
+#===============================[Observations By Modality(effectif)]==============================
+
+def calculOservationsByModality(features):
+   
+    # initializing the dictionary
+    effectif = {}
+
+    for item in features:
+         # checking the element in dictionary
+            if item in effectif:
+                effectif[item] += 1
+            else:
+                effectif[item] = 1
+
+  #return a dictionary with double input (key : value)
+    return effectif
+  
+
+  
+#===============================[Frequency by modality]============================================
+  
+    """
+    la fréquence c'est le rapport entre l'effectif d'une variable sur l'effectif total. 
+    #=> fi = ni/N 
+    """
+
+def frequencyByModality(features):
+    
+    staffing_Table=calculOservationsByModality(features)
+
+    #dictionnary
+    frequency_table={}
+   
+   #sum of staff
+    somme_ni=0
+
+    # nous allons supprimer les doublons afin de pouvoir effectuer la somme
+    features=list(set(features))
+
+    for valueObservation in features:
+            
+         somme_ni = somme_ni+staffing_Table[valueObservation]
+
+    for item in features:
+        v=staffing_Table[item]
+        freq = v/somme_ni
+        frequency_table[item]=freq
+
+    return frequency_table
+pass
+   
+     
+           
+
+#===============================[Cumulative Frequency By Modality]==============================
+
+def CumulativeFrequencyByModality(features):
+    
+   frequency_dictionnary=frequencyByModality(features)
+
+   cumul_dictionary={}
+
+   somme_f=0
+  
+   features.sort()
+
+   features=list(set(features))
+
+
+   for valeursObservation in features:
+
+    somme_f=0
+
+    for key, value in frequency_dictionnary.items() :
+        if((valeursObservation > 0) & (key==features[0]==valeursObservation)):
+          
+                cumul_dictionary[valeursObservation]=value
+
+                
+        elif((valeursObservation>0) & (key <= valeursObservation)) :
+
+            somme_f+=value
+            cumul_dictionary[valeursObservation] = somme_f
+            
+   return (cumul_dictionary)
+pass
+
+
+#===============================[Median en utilisant la frequence cumulé]==============================
+
+def medianAccordingCumulativeFrenquency(features):
+    
+    cumul_dictionary=CumulativeFrequencyByModality(features)
+
+    features_size=len(features)
+    Quotient=0
+
+    if(features_size%2==0):
+
+        rang=(features_size//2)+1
+
+        rangPython=rang-1
+
+        median=features[rangPython]
+
+        Quotient=rangPython/features_size
+        #print(Quotient)
+
+        for key,valueObservation in cumul_dictionary.items() :
+            if(valueObservation>=Quotient):
+                print("première valeur superieur a "+str(Quotient)+" est : " +str(valueObservation))
+                print("la mediane en function de la frequence cumulé : la projection de la valeur "+str(valueObservation)+ " donne une médiane égal à : "+str(key))
+                return 
+
+    else:
+        rang=((features_size+1)//2)
+        rangPython=rang-1
+        mediane=features[rangPython]
+
+        Quotient=rangPython/features_size
+        print(Quotient)
+        for key,valueObservation in cumul_dictionary.items() :
+            if(valueObservation>=Quotient):
+                print("première valeur superieur a "+str(Quotient)+" est : " +str(valueObservation))
+                print("la mediane en function de la frequence cumulé : la projection de la valeur "+str(valueObservation)+ " donne une médiane égal à : "+str(key))
+                return
+pass
+
+
+
+
+#===============================[Variance]==============================
+
+def variance(features):
+
+    moyenne=calculMoyenne(features)
+
+    sum_of_mean_square_deviation=0
+
+    features_size=len(features)
+
+    for valeursObservation in features:
+
+        sum_of_mean_square_deviation = sum_of_mean_square_deviation + ((valeursObservation-moyenne)**2)
+
+    variance=(sum_of_mean_square_deviation/features_size)
+
+    return (variance)   
+pass
+
+
+"""
+la variance comme étant la différence entre
+la moyenne des carrées et le carré de la moyenne
+"""
+def variance1(features, moyenne):
+
+    sum_of_xi_square=0
+
+    features_size=len(features)
+
+    average_of_the_squares=0
+
+    for valeursObservation in features:
+
+        sum_of_xi_square = sum_of_xi_square + (valeursObservation**2)
+    
+    #print(sum_of_xi_square/features_size)
+
+    average_of_the_squares=(sum_of_xi_square/features_size)
+
+    variance=average_of_the_squares - (moyenne**2)
+
+    return (variance)
+    
+       
+
+
+
+#===============================[ Standar Deviation(Ecartype)]==============================
+
+def standarDeviation(features)  :
+
+    var=variance(features)
+    std =sqrt(var)
+    return std
+  
+
+#===============================[ Calcul Centered moment order r ]============================== 
+def CenteredMoment(order,features):
+    
+    moyenne=calculMoyenne(features)
+    sum_of_mean_square_deviation=0
+    features_size=len(features)
+    for valeursObservation in features:
+        sum_of_mean_square_deviation = sum_of_mean_square_deviation + ((valeursObservation-moyenne)**order)
+
+    centered_moment_order_r =(sum_of_mean_square_deviation/features_size)
+
+    return centered_moment_order_r
+
+
+#===============================[Coefficient D'aplatissement de Pearson]================================ 
+
+def kurtosis(features):
+
+    moyenne=calculMoyenne(features)  
+
+    sum_of_mean_square_deviation=0
+    sum_of_mean_square_deviation_2=0
+    features_size=len(features)
+
+    # Centered Moment order 4
+    for valeursObservation in features:
+       
+        sum_of_mean_square_deviation = sum_of_mean_square_deviation + ((valeursObservation-moyenne)**4)
+
+    centered_moment_order_4=(sum_of_mean_square_deviation/features_size)
+
+    # Centered Moment order 2
+
+    for valeursObservation in features:
+       
+        sum_of_mean_square_deviation_2 = sum_of_mean_square_deviation_2 + ((valeursObservation-moyenne)**2)
+
+    centered_moment_order_2=(sum_of_mean_square_deviation_2/features_size)
+
+    beta=((centered_moment_order_4)/((centered_moment_order_2)**2))
+
+    print(beta)
+
+
+
+
+
+#===============================[Coefficient Asymetrique de fisher]============================== 
+
+def Skewness(features):
+
+    moyenne=calculMoyenne(features)
+    std=standarDeviation(features)
+
+    sum_of_mean_square_deviation=0
+    features_size=len(features)
+    for valeursObservation in features:
+       
+        sum_of_mean_square_deviation = sum_of_mean_square_deviation + ((valeursObservation-moyenne)**3)
+
+    centered_moment_order =(sum_of_mean_square_deviation/features_size)
+
+    gamma=((centered_moment_order)/(std**3))
+
+    print(gamma)
+
+#===============================[ la loi Normale ou loi gaussiennes ]============================== 
+
+"""
+les deux paramètre de loi normal ou loi gaussiennes sont:
+->L'espérance E(X) avec E(X)=Moyenne
+->L'écart-type
+"""
+
+def loiGaussiennes(features):
+
+#1-Calculates the average
+    
+    features_size=len(features)
+
+    sum_xi=0
+    
+    if features_size > 0 :
+        for valeurObservaion in features :
+            sum_xi=sum_xi + valeurObservaion
+
+        moyenne=sum_xi/features_size
+        print(moyenne)
+
+#2- calculates the variance
+    sum_of_mean_square_deviation=0
+
+    for valeursObservation in features:
+
+        sum_of_mean_square_deviation = sum_of_mean_square_deviation + ((valeursObservation-moyenne)**2)
+
+    variance=(sum_of_mean_square_deviation/features_size)
+
+    print(variance)
+
+#3- standard deviation
+
+    std =sqrt(variance)
+  
+pass
+
+
+#===============================[boite à moustaches]============================== 
+
+def boiteMoustaches(features):
+
+    plt.subplot(2, 2 , 4)
+    plt.boxplot(features)
+    plt.title( "Boite à moustaches " )
+    plt.show()
+
+
+#======================================[Etude d'une Variable Statistique]========================================================
+
+#1-Covariance
+
+def covariance(x, y):
+
+    # Finding the mean of the series x and y
+    mean_x = sum(x)/float(len(x))
+    mean_y = sum(y)/float(len(y))
+    # Subtracting mean from the individual elements
+    sub_x = [i - mean_x for i in x]
+    sub_y = [i - mean_y for i in y]
+    numerator = sum([sub_x[i]*sub_y[i] for i in range(len(sub_x))])
+    denominator = len(x)
+    cov = numerator/denominator
+    return cov
+
+
+
+#2-Corelation
+
+def correlation(x, y):
+    # Finding the mean of the series x and y
+    mean_x = sum(x)/float(len(x))
+    mean_y = sum(y)/float(len(y))
+    # Subtracting mean from the individual elements
+    sub_x = [i-mean_x for i in x]
+    sub_y = [i-mean_y for i in y]
+    # covariance for x and y
+    numerator = sum([sub_x[i]*sub_y[i] for i in range(len(sub_x))])
+    # Standard Deviation of x and y
+    std_deviation_x = sum([sub_x[i]**2.0 for i in range(len(sub_x))])
+    std_deviation_y = sum([sub_y[i]**2.0 for i in range(len(sub_y))])
+    # squaring by 0.5 to find the square root
+    denominator = (std_deviation_x*std_deviation_y)**0.5 
+    cor = numerator/denominator
+    return cor
+
+
+#Linear Regression function 
+def LinearRegression(x,y):
+
+    """
+     Y = ax + b avec a = cov(x,y)/var(x)
+                     b= Average(y) - a * Average(x)
+    """
+    # number of observations/points
+    n = np.size(x)
+  
+    # mean of x and y vector
+    m_x = np.mean(x)
+    m_y = np.mean(y)
+  
+    # calculating cross-deviation and deviation about x
+    SS_xy = np.sum(y*x) - n*m_y*m_x
+    SS_xx = np.sum(x*x) - n*m_x*m_x
+  
+    # calculating regression coefficients
+    b_1 = SS_xy / SS_xx
+    b_0 = m_y - b_1*m_x
+  
+    return (b_0, b_1)
+
+#==========================================[Linear Regression curve]=============================================================
+
+def plot_regression_line(x, y, b):
+    # plotting the actual points as scatter plot
+    plt.scatter(x, y, color = "m",
+               marker = "o", s = 30)
+  
+    # predicted response vector
+    y_pred = b[0] + b[1]*x
+  
+    # plotting the regression line
+    plt.plot(x, y_pred, color = "g")
+  
+    # putting labels
+    plt.xlabel('x')
+    plt.ylabel('y')
+  
+    # function to show plot
+    plt.show()
+
+
+
+
+
+     
